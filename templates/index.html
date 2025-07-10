@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mask R-CNN Interactive</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Mask R-CNN Interactive</h1>
+        
+        <form method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="file">Выберите изображение:</label>
+                <input type="file" id="file" name="file" accept="image/*" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="threshold">Threshold: <span id="threshold-value">{{ threshold|default(0.6, true) }}</span></label>
+                <input type="range" id="threshold" name="threshold" min="0" max="1" step="0.01" 
+                       value="{{ threshold|default(0.6, true) }}">
+            </div>
+            
+            <button type="submit">Загрузить и обработать</button>
+        </form>
+        
+        {% if image_url %}
+        <div class="image-container">
+            <img id="preview" src="{{ image_url }}" alt="Загруженное изображение">
+            <div class="info">
+                <p>Обнаружено объектов: <span id="object-count">{{ num_objects|default(0, true) }}</span></p>
+                <p>Координаты клика: <span id="click-coords">-</span></p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+<!--     <script>
+        document.getElementById('threshold').addEventListener('input', function() {
+            document.getElementById('threshold-value').textContent = this.value;
+        });
+
+        const preview = document.getElementById('preview');
+        if (preview) {
+            preview.addEventListener('click', function(e) {
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const imgX = Math.round((x / rect.width) * this.naturalWidth);
+                const imgY = Math.round((y / rect.height) * this.naturalHeight);
+                
+                document.getElementById('click-coords').textContent = `${imgX}, ${imgY}`;
+                
+                fetch('/process_click', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        image_url: "{{ image_url }}",
+                        x: imgX,
+                        y: imgY,
+                        threshold: document.getElementById('threshold').value
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    preview.src = data.result_url + '?t=' + new Date().getTime();
+                });
+            });
+        }
+    </script> -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
